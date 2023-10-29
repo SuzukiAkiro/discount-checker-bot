@@ -1,5 +1,5 @@
 import logging
-from telegram import Update
+from typing import NoReturn
 from telegram.ext import (
     ApplicationBuilder,
     ContextTypes,
@@ -7,11 +7,17 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from telegram import Update
 import os
+from exceptions import TokenInvalid
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+if not TELEGRAM_TOKEN:
+    raise TokenInvalid()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -27,7 +33,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == "__main__":
-    application = ApplicationBuilder().token(os.getenv("API_TOKEN")).build()
+    application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
     start_handler = CommandHandler("start", start)
     echo_handler = MessageHandler(filters.TEXT & ~(filters.COMMAND), echo)
