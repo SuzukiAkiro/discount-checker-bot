@@ -1,5 +1,5 @@
-from src import messages, db_funcs
-import aiosqlite
+from src import messages 
+from src.db_funcs import BotDB
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -9,9 +9,9 @@ from telegram.ext import (
     filters,
 )
 
-
+db = BotDB("bot.sql")
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await db_funcs.create_user(user_id=update.effective_user.id, user_name=str(update.effective_user.username))
+    db.create_user(update.effective_chat.id, update.effective_chat.username)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=messages.HELP)
 
 
