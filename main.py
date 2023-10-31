@@ -1,13 +1,10 @@
-from src import commands
 import logging
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    filters,
-)
 import os
+
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+
 from exceptions import TokenInvalid
+from src import commands
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO

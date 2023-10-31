@@ -81,12 +81,14 @@ class BotDB:
                 print("Waitlist exist!")
         except sqlite.Error as e:
             print(f"error: {e}")
-    
 
     def find_user_watchlist(self, user_id):
-            watchlist_id = self.db.execute("""SELECT id FROM watchlists WHERE owner='{owner_id}'""".format(owner_id=user_id))
-            return watchlist_id.fetchone()
-
+        watchlist_id = self.db.execute(
+            """SELECT id FROM watchlists WHERE owner='{owner_id}'""".format(
+                owner_id=user_id
+            )
+        )
+        return watchlist_id.fetchone()
 
     def parse_watchlist(self, user_id):
         try:
@@ -94,24 +96,26 @@ class BotDB:
                 """
                                      SELECT url, price FROM items WHERE watchlist_id={wl_id}
                                      """.format(
-                    wl_id = self.find_user_watchlist(user_id)
+                    wl_id=self.find_user_watchlist(user_id)
                 )
             ).fetchall()
             return cursor
         except sqlite.Error as e:
             print(f"Error: {e}")
 
-
     def add_item(self, url, user_id):
         try:
             wl_id = self.find_user_watchlist(user_id)
-            self.db.execute("""
+            self.db.execute(
+                """
                             INSERT INTO items (url, watchlist_id) VALUE `{url}`, `{watchlist}`
-                            """.format(url=url, watchlist=wl_id))
+                            """.format(
+                    url=url, watchlist=wl_id
+                )
+            )
             self.db.commit()
         except sqlite.Error as e:
-            print(f'Error: {e}')
-    
+            print(f"Error: {e}")
 
     def close_db(self):
         self.cursor.close()

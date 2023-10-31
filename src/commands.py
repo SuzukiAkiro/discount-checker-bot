@@ -1,13 +1,8 @@
+from telegram import Update
+from telegram.ext import ContextTypes
+
 from src import messages
 from src.db_funcs import BotDB
-from telegram import Update
-from telegram.ext import (
-    ApplicationBuilder,
-    ContextTypes,
-    CommandHandler,
-    MessageHandler,
-    filters,
-)
 
 db = BotDB("bot.sql")
 
@@ -20,7 +15,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = db.parse_watchlist(update.effective_chat.id)
-    answer = ''
+    answer = ""
     for tuples in result:
         url, price = tuples
         answer += f"Товар: {url}\n Цена: {price}\n\n"
