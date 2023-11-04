@@ -17,13 +17,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = db.parse_watchlist(user_id=update.effective_chat.id)
     answer = ""
+    number = 1
     for tuples in result:
         url, price = tuples
-        answer += f"Товар: {url}\n Цена: {price}\n\n"
+        answer += f"{number}) Товар: {url}\n Цена: {price}\n\n"
+        number += 1
     if answer:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=answer)
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=result)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=messages.LIST_EMPTY)
 
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,8 +35,12 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def save_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
-    db.add_item(msg, update.effective_chat.id)
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=messages.ADD_SUCCES
-    )
-    return ConversationHandler.END
+    if db.add_item(msg, update.effective_chat.id):
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=messages.ADD_SUCCES
+        )
+        return ConversationHandler.END
+    else:
+        await context.bot.send_message(chat_id=update._effective_chat.id, text=messages.ADD_FAILED)
+        return ConversationHandler.END
+

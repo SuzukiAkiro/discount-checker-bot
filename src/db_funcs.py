@@ -100,19 +100,23 @@ class BotDB:
 
     def add_item(self, url, user_id):
         try:
-            wl_id = self.find_user_watchlist(user_id)[0]
-            self.db.execute(
-                """
-                INSERT INTO items (watchlist_id, url) VALUES ('{watchlist}', '{url}')
-                """.format(
-                    url=url, watchlist=wl_id
+            if url.startswith("https://"):
+                wl_id = self.find_user_watchlist(user_id)[0]
+                self.db.execute(
+                    """
+                    INSERT INTO items (watchlist_id, url) VALUES ('{watchlist}', '{url}')
+                    """.format(
+                        url=url, watchlist=wl_id
+                    )
                 )
-            )
-            self.db.commit()
-            return True
+                self.db.commit()
+                return True
+            else:
+                return False
         except sqlite.Error as e:
             print(f"Error: {e}")
             return False
+    
 
     def close_db(self):
         self.cursor.close()
