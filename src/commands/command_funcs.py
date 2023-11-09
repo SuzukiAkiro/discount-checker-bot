@@ -1,8 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
-from src import messages
-from src.db_funcs import BotDB
+from commands import messages
+from src.database.db_funcs import BotDB
 
 db = BotDB("bot.sql")
 ENTER_TEXT = 0
@@ -44,7 +44,7 @@ async def save_text_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
     else:
         await context.bot.send_message(
-            chat_id=update._effective_chat.id, text=messages.ADD_FAILED
+            chat_id=update.effective_chat.id, text=messages.ADD_FAILED
         )
         return ConversationHandler.END
 

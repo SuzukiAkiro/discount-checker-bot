@@ -10,7 +10,7 @@ from telegram.ext import (
 )
 
 from exceptions import TokenInvalid
-from src import commands
+from src.commands import command_funcs
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -22,26 +22,26 @@ if not TELEGRAM_TOKEN:
 
 if __name__ == "__main__":
     application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    list_handler = CommandHandler("list", commands.list_command)
-    start_handler = CommandHandler("start", commands.start)
-    help_handler = CommandHandler("help", commands.start)
+    list_handler = CommandHandler("list", command_funcs.list_command)
+    start_handler = CommandHandler("start", command_funcs.start)
+    help_handler = CommandHandler("help", command_funcs.start)
     add_handler = ConversationHandler(
-        entry_points=[CommandHandler("add", commands.add)],
+        entry_points=[CommandHandler("add", command_funcs.add)],
         states={
-            commands.ENTER_TEXT: [
+            command_funcs.ENTER_TEXT: [
                 MessageHandler(
-                    filters.TEXT & ~(filters.COMMAND), commands.save_text_add
+                    filters.TEXT & ~(filters.COMMAND), command_funcs.save_text_add
                 )
             ],
         },
         fallbacks=[list_handler, start_handler, help_handler],
     )
     remove_handler = ConversationHandler(
-        entry_points=[CommandHandler("remove", commands.remove_item)],
+        entry_points=[CommandHandler("remove", command_funcs.remove_item)],
         states={
-            commands.ENTER_TEXT: [
+            command_funcs.ENTER_TEXT: [
                 MessageHandler(
-                    filters.TEXT & ~(filters.COMMAND), commands.save_text_remove
+                    filters.TEXT & ~(filters.COMMAND), command_funcs.save_text_remove
                 )
             ],
         },
