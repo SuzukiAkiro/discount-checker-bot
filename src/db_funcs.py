@@ -116,7 +116,14 @@ class BotDB:
         except sqlite.Error as e:
             print(f"Error: {e}")
             return False
-    
+
+    def remove_item(self, item):
+        try:
+            self.db.execute("DELETE FROM items WHERE url='{url}'".format(url=item))
+            return True
+        except sqlite.Error as e:
+            print(f"Error: {e}")
+            return False
 
     def close_db(self):
         self.cursor.close()
