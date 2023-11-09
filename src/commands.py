@@ -25,7 +25,9 @@ async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if answer:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=answer)
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=messages.LIST_EMPTY)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=messages.LIST_EMPTY
+        )
 
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,14 +35,43 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ENTER_TEXT
 
 
-async def save_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def save_text_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
     if db.add_item(msg, update.effective_chat.id):
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=messages.ADD_SUCCES
+            chat_id=update.effective_chat.id, text=messages.ADD_SUCCESS
         )
         return ConversationHandler.END
     else:
-        await context.bot.send_message(chat_id=update._effective_chat.id, text=messages.ADD_FAILED)
+        await context.bot.send_message(
+            chat_id=update._effective_chat.id, text=messages.ADD_FAILED
+        )
         return ConversationHandler.END
 
+
+async def remove_item(update: Update, context: ContextTypes):
+    await list_command(update, context)
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text=messages.REMOVE
+    )
+    return ENTER_TEXT
+
+
+async def save_text_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message.text
+    if msg.startswith("https://"):
+        if db.remove_item(msg):
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=messages.REMOVE_SUCCESS
+            )
+            return ConversationHandler.END
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=messages.REMOVE_FAILED
+            )
+            return ConversationHandler.END
+    else:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=messages.URL_ERROR
+        )
+        return ConversationHandler.END
