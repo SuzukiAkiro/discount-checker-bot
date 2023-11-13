@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
-from commands import messages
+from src.commands import messages
 from src.database.db_funcs import BotDB
 
 db = BotDB("bot.sql")
@@ -37,6 +37,14 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def save_text_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
+    user_items = db.parse_watchlist(user_id=update.effective_chat.id)
+    for tuples in user_items:
+        url, _ = tuples
+        if msg == url:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=messages.ADD_ALREADY
+            )
+            return ConversationHandler.END
     if db.add_item(msg, update.effective_chat.id):
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text=messages.ADD_SUCCESS
@@ -59,19 +67,26 @@ async def remove_item(update: Update, context: ContextTypes):
 
 async def save_text_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
-    if msg.startswith("https://"):
-        if db.remove_item(msg):
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id, text=messages.REMOVE_SUCCESS
-            )
-            return ConversationHandler.END
-        else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id, text=messages.REMOVE_FAILED
-            )
-            return ConversationHandler.END
-    else:
+    user_items = db.parse_watchlist(user_id=update.effective_chat.id) 
+    if not msg.startswith("https://"):
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=messages.URL_ERROR
+            chat_id=update.effective_chat.id, text=messages.URL_ERROR 
         )
         return ConversationHandler.END
+    for tuples in user_items:
+        url, _ = tuples
+        if msg == url:
+            if db.remove_item(msg):
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id, text=messages.REMOVE_SUCCESS
+                )
+                return ConversationHandler.END
+            else:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id, text=messages.REMOVE_FAILED
+                )
+                return ConversationHandler.END
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text=messages.REMOVE_ALREADY
+    )
+    return ConversationHandler.END
