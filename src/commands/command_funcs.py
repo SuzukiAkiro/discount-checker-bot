@@ -37,6 +37,11 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def save_text_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
+    if not msg.startswith("https://"):
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=messages.URL_ERROR
+        )
+        return ConversationHandler.END
     user_items = db.parse_watchlist(user_id=update.effective_chat.id)
     for tuples in user_items:
         url, _ = tuples
@@ -67,10 +72,10 @@ async def remove_item(update: Update, context: ContextTypes):
 
 async def save_text_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message.text
-    user_items = db.parse_watchlist(user_id=update.effective_chat.id) 
+    user_items = db.parse_watchlist(user_id=update.effective_chat.id)
     if not msg.startswith("https://"):
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=messages.URL_ERROR 
+            chat_id=update.effective_chat.id, text=messages.URL_ERROR
         )
         return ConversationHandler.END
     for tuples in user_items:
