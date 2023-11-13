@@ -1,2 +1,4 @@
 .venv/
+.idea/
+*.sql
 __pycache__/
